@@ -36,7 +36,7 @@ struct MovieResource {
         }
     }
 
-    func getMovieCategories(from movies: [Movie]) -> [MovieCategory] {
+    func getMovieCategories() -> [MovieCategory] {
         let yearData = MovieCategory(type: .year)
         let genreData = MovieCategory(type: .genre)
         let directorsData = MovieCategory(type: .directors)
@@ -69,6 +69,15 @@ struct MovieResource {
         
         case .allMovies:
             return movies
+        }
+    }
+    
+    func searchMovie(text: String, movies: [Movie], completionHandler: @escaping(_ result: Result<[Movie]?, CommonError>) -> Void) {
+        if text.isEmpty {
+            completionHandler(.success(nil))
+        } else {
+            let searchedMovies = movies.filter({ ($0.title?.localizedCaseInsensitiveContains(text) ?? false) || ($0.genre?.joined().localizedCaseInsensitiveContains(text) ?? false) || ($0.actors?.joined().localizedCaseInsensitiveContains(text) ?? false) || ($0.director?.joined().localizedCaseInsensitiveContains(text) ?? false) })
+            completionHandler(.success(searchedMovies))
         }
     }
 }

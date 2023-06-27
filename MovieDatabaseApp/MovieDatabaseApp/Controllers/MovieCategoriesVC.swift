@@ -14,8 +14,12 @@ class MovieCategoriesVC: UIViewController {
     private var movies: [Movie] = []
     private var movieCategories: [MovieCategory] = []
     
+    private var movieResource: MovieResource?
+    
     private var searchText = ""
     private var searchedMovies: [Movie] = []
+    
+    private var workItemReference : DispatchWorkItem? = nil
     
     //MARK: - View controller life cycle methods
     override func viewDidLoad() {
@@ -23,17 +27,17 @@ class MovieCategoriesVC: UIViewController {
         
         let jsonUtility = JSONUtility()
         let responseHandler = ResponseHandler()
-        let resource = MovieResource(jsonUtility: jsonUtility, responseHandler: responseHandler)
+        movieResource = MovieResource(jsonUtility: jsonUtility, responseHandler: responseHandler)
         let jsonRequest = JSONRequest(withFileName: ProjectImp.fileName, and: ProjectImp.fileType)
-        initializeData(from: resource, request: jsonRequest)
+        initializeData(from: movieResource, request: jsonRequest)
     }
     
-    private func initializeData(from resource: MovieResource, request: JSONRequest) {
-        resource.getMoviesWith(request: request, responseType: [Movie].self) { [weak self] result in
+    private func initializeData(from resource: MovieResource?, request: JSONRequest) {
+        resource?.getMoviesWith(request: request, responseType: [Movie].self) { [weak self] result in
             switch result {
             case .success(let movies):
                 self?.movies = movies ?? []
-                self?.movieCategories = resource.getMovieCategories(from: self?.movies ?? [])
+                self?.movieCategories = resource?.getMovieCategories() ?? []
                 DispatchQueue.main.async {
                     self?.tblVWMovieCategories.reloadData()
                 }
@@ -125,14 +129,35 @@ extension MovieCategoriesVC: UITableViewDelegate {
 //MARK: - Search bar delegate methods
 extension MovieCategoriesVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.searchText = searchText
-        if searchText.isEmpty {
-            searchedMovies = []
-        } else {
-            searchedMovies = movies.filter({ ($0.title?.localizedCaseInsensitiveContains(searchText) ?? false) || ($0.genre?.joined().localizedCaseInsensitiveContains(searchText) ?? false) || ($0.actors?.joined().localizedCaseInsensitiveContains(searchText) ?? false) || ($0.director?.joined().localizedCaseInsensitiveContains(searchText) ?? false) })
+        workItemReference?.cancel()
+        
+        let animalSearchWorkItem = DispatchWorkItem {
+            self.searchMovieWith(text: searchText, from: self.movieResource)
         }
-        DispatchQueue.main.async {
-            self.tblVWMovieCategories.reloadData()
+        
+        workItemReference = animalSearchWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1), execute: animalSearchWorkItem)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.searchTextField.resignFirstResponder()
+    }
+    
+    private func searchMovieWith(text: String, from resource: MovieResource?) {
+        self.searchText = text
+        resource?.searchMovie(text: text, movies: self.movies) { [weak self] result in
+            switch result {
+            case .success(let movies):
+                self?.searchedMovies = movies ?? []
+                DispatchQueue.main.async {
+                    self?.tblVWMovieCategories.reloadData()
+                }
+                
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self?.popupAlert(title: error.reason, message: nil, actionTitles: ["OK"], actions: [{_ in}])
+                }
+            }
         }
     }
 }
