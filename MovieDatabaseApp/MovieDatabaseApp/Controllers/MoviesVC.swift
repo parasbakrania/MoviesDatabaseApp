@@ -20,7 +20,7 @@ class MoviesVC: UIViewController {
         self.navigationItem.title = moviesTitle
     }
     
-    // MARK: - Navigation
+    // MARK: - Navigation methods
     private func navigateToMovieDetailsVC(movie: Movie?) {
         guard let movieDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieDetailsVC) as? MovieDetailsVC else { return }
         movieDetailsVC.movie = movie

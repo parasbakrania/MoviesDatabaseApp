@@ -45,30 +45,35 @@ struct MovieResource {
         return [yearData, genreData, directorsData, actorsData, allMoviesData]
     }
     
-    func getMovieCategoryDetails(type: MovieCategoryType, from movies: [Movie]) -> [Any] {
+    func getMovieCategoryDetails<T: Decodable>(type: MovieCategoryType, from movies: [Movie], responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
         switch type {
         case .year:
-            return Set(movies.compactMap{ $0.year }).map { year in
+            let yearValues = Set(movies.compactMap{ $0.year }).map { year in
                 MovieCategoryDetail(title: year, movies: movies.filter{ $0.year == year })
-            }
+            } as? T
+            completionHandler(.success(yearValues))
             
         case .genre:
-            return Set(movies.compactMap{ $0.genre }.flatMap{ $0 }).map { genre in
+            let genreValues = Set(movies.compactMap{ $0.genre }.flatMap{ $0 }).map { genre in
                 MovieCategoryDetail(title: genre, movies: movies.filter{ $0.genre?.contains(genre) ?? false })
-            }
+            } as? T
+            completionHandler(.success(genreValues))
             
         case .directors:
-            return Set(movies.compactMap{ $0.director }.flatMap{ $0 }).map { director in
+            let directorValues = Set(movies.compactMap{ $0.director }.flatMap{ $0 }).map { director in
                 MovieCategoryDetail(title: director, movies: movies.filter{ $0.director?.contains(director) ?? false })
-            }
+            } as? T
+            completionHandler(.success(directorValues))
             
         case .actors:
-            return Set(movies.compactMap{ $0.actors }.flatMap{ $0 }).map { title in
+            let actorValues = Set(movies.compactMap{ $0.actors }.flatMap{ $0 }).map { title in
                 MovieCategoryDetail(title: title, movies: movies.filter{ $0.actors?.contains(title) ?? false })
-            }
-        
+            } as? T
+            completionHandler(.success(actorValues))
+            
         case .allMovies:
-            return movies
+            completionHandler(.success(movies as? T))
+            
         }
     }
     

@@ -9,10 +9,9 @@ import Foundation
 
 struct MovieCategory {
     let type: MovieCategoryType?
-    var values: Any?
 }
 
-struct MovieCategoryDetail {
+struct MovieCategoryDetail: Decodable {
     let title: String?
     let movies: [Movie]?
 }

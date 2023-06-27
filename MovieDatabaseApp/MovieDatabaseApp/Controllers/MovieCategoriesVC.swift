@@ -43,7 +43,6 @@ class MovieCategoriesVC: UIViewController {
                 }
                 
             case .failure(let error):
-                debugPrint(error.reason ?? "")
                 DispatchQueue.main.async {
                     self?.popupAlert(title: error.reason, message: nil, actionTitles: ["OK"], actions: [{_ in}])
                 }
@@ -51,20 +50,18 @@ class MovieCategoriesVC: UIViewController {
         }
     }
     
-    // MARK: - Navigation
-    private func navigateToWatchOptionValuesVC(movieCategory: MovieCategory) {
+    // MARK: - Navigation methods
+    private func navigateToMovieCategoryDetailsVC(title: String?, categoryDetails: [MovieCategoryDetail]?) {
         guard let movieCategoryDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieCategoryDetailsVC) as? MovieCategoryDetailsVC else { return }
-        movieCategoryDetailsVC.movieCategoryTitle = movieCategory.type?.rawValue
-        let resource = MovieResource(jsonUtility: JSONUtility(), responseHandler: ResponseHandler())
-        movieCategoryDetailsVC.movieCategoryDetails = resource.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: movies) as? [MovieCategoryDetail]
+        movieCategoryDetailsVC.movieCategoryTitle = title
+        movieCategoryDetailsVC.movieCategoryDetails = categoryDetails
         self.navigationController?.pushViewController(movieCategoryDetailsVC, animated: true)
     }
     
-    private func navigateToMoviesVC(movieCategory: MovieCategory) {
+    private func navigateToMoviesVC(title: String?, movies: [Movie]?) {
         guard let moviesVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.moviesVC) as? MoviesVC else { return }
-        moviesVC.moviesTitle = movieCategory.type?.rawValue
-        let resource = MovieResource(jsonUtility: JSONUtility(), responseHandler: ResponseHandler())
-        moviesVC.movies = resource.getMovieCategoryDetails(type: movieCategory.type ?? .allMovies, from: movies) as? [Movie]
+        moviesVC.moviesTitle = title
+        moviesVC.movies = movies
         self.navigationController?.pushViewController(moviesVC, animated: true)
     }
     
@@ -121,12 +118,41 @@ extension MovieCategoriesVC: UITableViewDelegate {
             navigateToMovieDetailsVC(movie: searchedMovies[indexPath.row])
         } else {
             let movieCategory = movieCategories[indexPath.row]
-            switch movieCategory.type {
-            case .allMovies:
-                navigateToMoviesVC(movieCategory: movieCategory)
-            default:
-                navigateToWatchOptionValuesVC(movieCategory: movieCategory)
-            }
+            handleNavigation(for: movieCategory, using: movieResource)
+        }
+    }
+    
+    private func handleNavigation(for movieCategory: MovieCategory, using resource: MovieResource?) {
+        switch movieCategory.type {
+        case .allMovies:
+            resource?.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: self.movies, responseType: [Movie].self, completionHandler: { [weak self] result in
+                switch result {
+                case .success(let movies):
+                    DispatchQueue.main.async {
+                        self?.navigateToMoviesVC(title: movieCategory.type?.rawValue, movies: movies)
+                    }
+                        
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        self?.popupAlert(title: error.reason, message: nil, actionTitles: ["OK"], actions: [{_ in}])
+                    }
+                }
+            })
+            
+        default:
+            resource?.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: self.movies, responseType: [MovieCategoryDetail].self, completionHandler: { [weak self] result in
+                switch result {
+                case .success(let moviesCategoryDetails):
+                    DispatchQueue.main.async {
+                        self?.navigateToMovieCategoryDetailsVC(title: movieCategory.type?.rawValue, categoryDetails: moviesCategoryDetails)
+                    }
+
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        self?.popupAlert(title: error.reason, message: nil, actionTitles: ["OK"], actions: [{_ in}])
+                    }
+                }
+            })
         }
     }
 }
