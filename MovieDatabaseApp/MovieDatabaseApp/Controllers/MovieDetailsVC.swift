@@ -57,7 +57,9 @@ extension MovieDetailsVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if movieInfos[indexPath.section].type == .rating {
             ratingCellIndexPath = indexPath
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.ratingCell) as! RatingCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.ratingCell) as? RatingCell else {
+                return UITableViewCell()
+            }
             cell.txtFieldRatingSrc.text = selectedRating?.source
             cell.lblRatingValue.text = selectedRating?.value
             cell.pickerVW.dataSource = self
@@ -66,7 +68,9 @@ extension MovieDetailsVC: UITableViewDataSource {
             cell.pickerVW.reloadAllComponents()
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as! SingleLblCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as? SingleLblCell else {
+                return UITableViewCell()
+            }
             cell.lblTitle.font = UIFont.systemFont(ofSize: 15, weight: .regular)
             cell.lblTitle.text = movieInfos[indexPath.section].values as? String
             return cell
@@ -77,7 +81,9 @@ extension MovieDetailsVC: UITableViewDataSource {
 //MARK: - Table view delegate methods
 extension MovieDetailsVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as! SingleLblCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as? SingleLblCell else {
+            return UIView()
+        }
         cell.lblTitle.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         cell.lblTitle.text = movieInfos[section].type?.rawValue
         return cell.contentView

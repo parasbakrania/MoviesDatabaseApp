@@ -22,7 +22,7 @@ class MoviesVC: UIViewController {
     
     // MARK: - Navigation
     private func navigateToMovieDetailsVC(movie: Movie?) {
-        let movieDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieDetailsVC) as! MovieDetailsVC
+        guard let movieDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieDetailsVC) as? MovieDetailsVC else { return }
         movieDetailsVC.movie = movie
         self.navigationController?.pushViewController(movieDetailsVC, animated: true)
     }
@@ -35,7 +35,9 @@ extension MoviesVC: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.movieCell) as! MovieCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.movieCell) as? MovieCell else {
+            return UITableViewCell()
+        }
         let movie = movies?[indexPath.row]
         if let poster = movie?.poster, let posterImgUrl = URL(string: poster) {
             cell.imgVWPoster.loadImage(fromURL: posterImgUrl, placeHolderImage: ImageName.defaultImg)

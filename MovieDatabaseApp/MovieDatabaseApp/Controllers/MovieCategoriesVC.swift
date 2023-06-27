@@ -53,7 +53,7 @@ class MovieCategoriesVC: UIViewController {
     
     // MARK: - Navigation
     private func navigateToWatchOptionValuesVC(movieCategory: MovieCategory) {
-        let movieCategoryDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieCategoryDetailsVC) as! MovieCategoryDetailsVC
+        guard let movieCategoryDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieCategoryDetailsVC) as? MovieCategoryDetailsVC else { return }
         movieCategoryDetailsVC.movieCategoryTitle = movieCategory.type?.rawValue
         let resource = MovieResource(jsonUtility: JSONUtility(), responseHandler: ResponseHandler())
         movieCategoryDetailsVC.movieCategoryDetails = resource.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: movies) as? [MovieCategoryDetail]
@@ -61,7 +61,7 @@ class MovieCategoriesVC: UIViewController {
     }
     
     private func navigateToMoviesVC(movieCategory: MovieCategory) {
-        let moviesVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.moviesVC) as! MoviesVC
+        guard let moviesVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.moviesVC) as? MoviesVC else { return }
         moviesVC.moviesTitle = movieCategory.type?.rawValue
         let resource = MovieResource(jsonUtility: JSONUtility(), responseHandler: ResponseHandler())
         moviesVC.movies = resource.getMovieCategoryDetails(type: movieCategory.type ?? .allMovies, from: movies) as? [Movie]
@@ -69,7 +69,7 @@ class MovieCategoriesVC: UIViewController {
     }
     
     private func navigateToMovieDetailsVC(movie: Movie?) {
-        let movieDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieDetailsVC) as! MovieDetailsVC
+        guard let movieDetailsVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.movieDetailsVC) as?  MovieDetailsVC else { return }
         movieDetailsVC.movie = movie
         self.navigationController?.pushViewController(movieDetailsVC, animated: true)
     }
@@ -93,7 +93,9 @@ extension MovieCategoriesVC: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if !searchText.isEmpty {
-            let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.movieCell) as! MovieCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.movieCell) as? MovieCell else {
+                return UITableViewCell()
+            }
             let movie = searchedMovies[indexPath.row]
             if let poster = movie.poster, let posterImgUrl = URL(string: poster) {
                 cell.imgVWPoster.loadImage(fromURL: posterImgUrl, placeHolderImage: ImageName.defaultImg)
@@ -102,10 +104,13 @@ extension MovieCategoriesVC: UITableViewDataSource {
             cell.lblLanguage.text = movie.language
             cell.lblYear.text = movie.year
             return cell
+        } else {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as? SingleLblCell else {
+                return UITableViewCell()
+            }
+            cell.lblTitle.text = movieCategories[indexPath.row].type?.rawValue
+            return cell
         }
-        let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as! SingleLblCell
-        cell.lblTitle.text = movieCategories[indexPath.row].type?.rawValue
-        return cell
     }
 }
 

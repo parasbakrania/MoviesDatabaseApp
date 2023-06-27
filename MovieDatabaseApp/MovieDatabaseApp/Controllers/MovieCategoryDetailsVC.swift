@@ -22,7 +22,7 @@ class MovieCategoryDetailsVC: UIViewController {
     
     // MARK: - Navigation
     private func navigateToMoviesVC(movieCategoryDetail: MovieCategoryDetail?) {
-        let moviesVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.moviesVC) as! MoviesVC
+        guard let moviesVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.moviesVC) as? MoviesVC else { return }
         moviesVC.moviesTitle = movieCategoryDetail?.title
         moviesVC.movies = movieCategoryDetail?.movies
         self.navigationController?.pushViewController(moviesVC, animated: true)
@@ -36,7 +36,9 @@ extension MovieCategoryDetailsVC: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as! SingleLblCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.singleLblCell) as? SingleLblCell else {
+            return UITableViewCell()
+        }
         cell.lblTitle.text = movieCategoryDetails?[indexPath.row].title
         return cell
     }
