@@ -9,14 +9,15 @@ import UIKit
 
 class MoviesVC: UIViewController {
     
-    @IBOutlet weak var tblVW: UITableView!
+    @IBOutlet weak var tblVWMovies: UITableView!
     
-    var watchOptionValue: WatchOptionValue?
+    var moviesTitle: String?
+    var movies: [Movie]?
     
     //MARK: - View controller life cycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.title = watchOptionValue?.title
+        self.navigationItem.title = moviesTitle
     }
     
     // MARK: - Navigation
@@ -30,12 +31,12 @@ class MoviesVC: UIViewController {
 // MARK: - Table view data source methods
 extension MoviesVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return watchOptionValue?.movies?.count ?? 0
+        return movies?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CellsID.movieCell) as! MovieCell
-        let movie = watchOptionValue?.movies?[indexPath.row]
+        let movie = movies?[indexPath.row]
         if let poster = movie?.poster, let posterImgUrl = URL(string: poster) {
             cell.imgVWPoster.loadImage(fromURL: posterImgUrl, placeHolderImage: ImageName.defaultImg)
         }
@@ -49,6 +50,6 @@ extension MoviesVC: UITableViewDataSource {
 //MARK: - Table view delegate methods
 extension MoviesVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        navigateToMovieDetailsVC(movie: watchOptionValue?.movies?[indexPath.row])
+        navigateToMovieDetailsVC(movie: movies?[indexPath.row])
     }
 }

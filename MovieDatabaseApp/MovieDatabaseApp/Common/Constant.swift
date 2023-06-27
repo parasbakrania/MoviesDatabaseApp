@@ -13,7 +13,7 @@ struct ProjectImp {
 }
 
 struct ViewControllersID {
-    static let watchOptionValuesVC = "WatchOptionValuesVC"
+    static let movieCategoryDetailsVC = "MovieCategoryDetailsVC"
     static let moviesVC = "MoviesVC"
     static let movieDetailsVC = "MovieDetailsVC"
 }

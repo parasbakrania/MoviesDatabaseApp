@@ -9,36 +9,67 @@ import Foundation
 
 struct MovieResource {
     
-    func getMovies(fileName: String, fileType: String, completionHandler: @escaping (_ result: [Movie]?) -> Void) {
-        guard let path = Bundle.main.path(forResource: fileName, ofType: fileType) else { return }
-        let url = URL(fileURLWithPath: path)
-        do {
-            let data = try Data(contentsOf: url)
-            let response = try JSONDecoder().decode([Movie].self, from: data)
-            _ = completionHandler(response)
-        } catch {
-            debugPrint(error)
-        }
+    let jsonUtility: JSONUtility
+    let responseHandler: ResponseHandler
+    
+    init(jsonUtility: JSONUtility, responseHandler: ResponseHandler) {
+        self.jsonUtility = jsonUtility
+        self.responseHandler = responseHandler
     }
     
-    func getWatchOptions(from movies: [Movie]) -> [WatchOption] {
-        let yearValues = Set(movies.compactMap{ $0.year }).map { year in
-            WatchOptionValue(title: year, movies: movies.filter{ $0.year == year })
+    func getMoviesWith<T: Decodable>(request: JSONRequest, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
+        self.jsonUtility.requestData(from: request) { result in
+            switch result {
+            case .success(let data):
+                self.responseHandler.decodeJsonResponse(data: data, responseType: responseType) { result in
+                    switch result {
+                    case .success(let response):
+                        completionHandler(.success(response))
+                    case .failure(let error):
+                        completionHandler(.failure(error))
+                    }
+                }
+                
+            case .failure(let error):
+                completionHandler(.failure(error))
+            }
         }
-        let genreValues = Set(movies.compactMap{ $0.genre }.flatMap{ $0 }).map { genre in
-            WatchOptionValue(title: genre, movies: movies.filter{ $0.genre?.contains(genre) ?? false })
+    }
+
+    func getMovieCategories(from movies: [Movie]) -> [MovieCategory] {
+        let yearData = MovieCategory(type: .year)
+        let genreData = MovieCategory(type: .genre)
+        let directorsData = MovieCategory(type: .directors)
+        let actorsData = MovieCategory(type: .actors)
+        let allMoviesData = MovieCategory(type: .allMovies)
+        return [yearData, genreData, directorsData, actorsData, allMoviesData]
+    }
+    
+    func getMovieCategoryDetails(type: MovieCategoryType, from movies: [Movie]) -> [Any] {
+        switch type {
+        case .year:
+            return Set(movies.compactMap{ $0.year }).map { year in
+                MovieCategoryDetail(title: year, movies: movies.filter{ $0.year == year })
+            }
+            
+        case .genre:
+            return Set(movies.compactMap{ $0.genre }.flatMap{ $0 }).map { genre in
+                MovieCategoryDetail(title: genre, movies: movies.filter{ $0.genre?.contains(genre) ?? false })
+            }
+            
+        case .directors:
+            return Set(movies.compactMap{ $0.director }.flatMap{ $0 }).map { director in
+                MovieCategoryDetail(title: director, movies: movies.filter{ $0.director?.contains(director) ?? false })
+            }
+            
+        case .actors:
+            return Set(movies.compactMap{ $0.actors }.flatMap{ $0 }).map { title in
+                MovieCategoryDetail(title: title, movies: movies.filter{ $0.actors?.contains(title) ?? false })
+            }
+        
+        case .allMovies:
+            return movies
         }
-        let directorValues = Set(movies.compactMap{ $0.director }.flatMap{ $0 }).map { director in
-            WatchOptionValue(title: director, movies: movies.filter{ $0.director?.contains(director) ?? false })
-        }
-        let actorValues = Set(movies.compactMap{ $0.actors }.flatMap{ $0 }).map { title in
-            WatchOptionValue(title: title, movies: movies.filter{ $0.actors?.contains(title) ?? false })
-        }
-        let yearData = WatchOption(type: .year, values: yearValues)
-        let genreData = WatchOption(type: .genre, values: genreValues)
-        let directorsData = WatchOption(type: .directors, values: directorValues)
-        let actorsData = WatchOption(type: .actors, values: actorValues)
-        return [yearData, genreData, directorsData, actorsData]
     }
 }
 

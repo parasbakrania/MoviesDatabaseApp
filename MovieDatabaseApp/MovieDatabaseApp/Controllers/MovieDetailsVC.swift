@@ -9,7 +9,7 @@ import UIKit
 
 class MovieDetailsVC: UIViewController {
     
-    @IBOutlet weak var tblVW: UITableView!
+    @IBOutlet weak var tblVWMovieDetails: UITableView!
     @IBOutlet weak var imgVWPoster: LazyImgVW!
     
     var movie: Movie?
@@ -115,7 +115,7 @@ extension MovieDetailsVC: CustomPickerVWDelegate {
     func didTapDone() {
         selectedRating = selectingRating
         guard let indexPath = ratingCellIndexPath,
-              let cell = tblVW.cellForRow(at: indexPath) as? RatingCell else {
+              let cell = tblVWMovieDetails.cellForRow(at: indexPath) as? RatingCell else {
             return
         }
         cell.txtFieldRatingSrc.text = selectedRating?.source
@@ -125,7 +125,7 @@ extension MovieDetailsVC: CustomPickerVWDelegate {
     
     func didTapCancel() {
         guard let indexPath = ratingCellIndexPath,
-              let cell = tblVW.cellForRow(at: indexPath) as? RatingCell else {
+              let cell = tblVWMovieDetails.cellForRow(at: indexPath) as? RatingCell else {
             return
         }
         cell.txtFieldRatingSrc.resignFirstResponder()

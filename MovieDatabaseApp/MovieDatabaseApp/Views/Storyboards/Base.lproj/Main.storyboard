@@ -29,7 +29,7 @@
         <!--Movies-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="WatchOptionsVC" customModule="MovieDatabaseApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="MovieCategoriesVC" customModule="MovieDatabaseApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -154,7 +154,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="Movies" id="LgN-VI-2ZY"/>
                     <connections>
-                        <outlet property="tblVW" destination="ObA-C1-QTS" id="y9k-28-Ffk"/>
+                        <outlet property="tblVWMovieCategories" destination="ObA-C1-QTS" id="u7b-hg-1RH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -164,7 +164,7 @@
         <!--Movies-->
         <scene sceneID="3Oq-d4-Qpe">
             <objects>
-                <viewController storyboardIdentifier="WatchOptionValuesVC" id="zDy-gu-rm9" customClass="WatchOptionValuesVC" customModule="MovieDatabaseApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MovieCategoryDetailsVC" id="zDy-gu-rm9" customClass="MovieCategoryDetailsVC" customModule="MovieDatabaseApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sRw-MR-mwi">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -217,7 +217,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="Movies" id="otN-9i-fLH"/>
                     <connections>
-                        <outlet property="tblVW" destination="9dT-I2-bAK" id="QRH-Oj-NUb"/>
+                        <outlet property="tblVWMovieCategoryDetails" destination="9dT-I2-bAK" id="hZm-6A-J69"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sJo-6r-NHa" sceneMemberID="firstResponder"/>
@@ -316,7 +316,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="Movies" id="5LQ-iy-peH"/>
                     <connections>
-                        <outlet property="tblVW" destination="VWd-nT-CZg" id="d83-kx-qej"/>
+                        <outlet property="tblVWMovies" destination="VWd-nT-CZg" id="79B-Tt-gCJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g8G-am-kEK" sceneMemberID="firstResponder"/>
@@ -439,7 +439,7 @@
                     <navigationItem key="navigationItem" title="Movies" id="gAu-af-zoL"/>
                     <connections>
                         <outlet property="imgVWPoster" destination="oEi-Vd-YkJ" id="VBO-FC-ahz"/>
-                        <outlet property="tblVW" destination="ruB-xz-E3l" id="zxZ-Mn-1ze"/>
+                        <outlet property="tblVWMovieDetails" destination="ruB-xz-E3l" id="iyV-3S-4ao"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6bh-Tc-reQ" sceneMemberID="firstResponder"/>
