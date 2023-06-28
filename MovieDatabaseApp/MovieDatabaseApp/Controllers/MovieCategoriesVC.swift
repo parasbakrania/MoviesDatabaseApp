@@ -14,7 +14,7 @@ class MovieCategoriesVC: UIViewController {
     private var movies: [Movie] = []
     private var movieCategories: [MovieCategory] = []
     
-    private var movieResource: MovieResource?
+    private var movieResProtocol: MovieResourceProtocol?
     
     private var searchText = ""
     private var searchedMovies: [Movie] = []
@@ -26,9 +26,9 @@ class MovieCategoriesVC: UIViewController {
         super.viewDidLoad()
         
         if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-            movieResource = appDelegate.container.resolve(type: MovieResourceProtocol.self) as? MovieResource
+            movieResProtocol = appDelegate.container.resolve(type: MovieResourceProtocol.self) as? MovieResource
             let fileRequest = FileRequest(withFileName: ProjectImp.fileName, and: ProjectImp.fileType)
-            initializeData(from: movieResource, request: fileRequest)
+            initializeData(from: movieResProtocol, request: fileRequest)
         }
     }
     
@@ -118,7 +118,7 @@ extension MovieCategoriesVC: UITableViewDelegate {
             navigateToMovieDetailsVC(movie: searchedMovies[indexPath.row])
         } else {
             let movieCategory = movieCategories[indexPath.row]
-            handleNavigation(for: movieCategory, using: movieResource)
+            handleNavigation(for: movieCategory, using: movieResProtocol)
         }
     }
     
@@ -163,7 +163,7 @@ extension MovieCategoriesVC: UISearchBarDelegate {
         workItemReference?.cancel()
         
         let animalSearchWorkItem = DispatchWorkItem {
-            self.searchMovieWith(text: searchText, from: self.movieResource)
+            self.searchMovieWith(text: searchText, from: self.movieResProtocol)
         }
         
         workItemReference = animalSearchWorkItem
