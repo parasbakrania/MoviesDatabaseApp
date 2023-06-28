@@ -30,4 +30,6 @@ struct ImageName {
 
 struct CommonString {
     static let noResults = "No results"
+    static let noDataFound = "No data found"
+    static let fileNotFound = "File not found"
 }

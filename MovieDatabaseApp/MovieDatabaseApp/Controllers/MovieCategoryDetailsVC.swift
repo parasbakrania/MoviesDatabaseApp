@@ -21,10 +21,10 @@ class MovieCategoryDetailsVC: UIViewController {
     }
     
     // MARK: - Navigation methods
-    private func navigateToMoviesVC(movieCategoryDetail: MovieCategoryDetail?) {
+    private func navigateToMoviesVC(title: String?, movies: [Movie]?) {
         guard let moviesVC = self.storyboard?.instantiateViewController(withIdentifier: ViewControllersID.moviesVC) as? MoviesVC else { return }
-        moviesVC.moviesTitle = movieCategoryDetail?.title
-        moviesVC.movies = movieCategoryDetail?.movies
+        moviesVC.moviesTitle = title
+        moviesVC.movies = movies
         self.navigationController?.pushViewController(moviesVC, animated: true)
     }
 }
@@ -47,7 +47,8 @@ extension MovieCategoryDetailsVC: UITableViewDataSource {
 //MARK: - Table view delegate methods
 extension MovieCategoryDetailsVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        navigateToMoviesVC(movieCategoryDetail: movieCategoryDetails?[indexPath.row])
+        let movieCategoryDetail = movieCategoryDetails?[indexPath.row]
+        navigateToMoviesVC(title: movieCategoryDetail?.title, movies: movieCategoryDetail?.movies)
     }
 }
 

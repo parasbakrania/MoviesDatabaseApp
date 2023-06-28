@@ -1,13 +1,13 @@
 //
-//  JSONError.swift
+//  FileError.swift
 //  MovieDatabaseApp
 //
-//  Created by AdminFS on 27/06/23.
+//  Created by AdminFS on 28/06/23.
 //
 
 import Foundation
 
-class JSONError: CommonError {
+class FileError: CommonError {
     var responseData: String?
     var requestFileName: String?
 

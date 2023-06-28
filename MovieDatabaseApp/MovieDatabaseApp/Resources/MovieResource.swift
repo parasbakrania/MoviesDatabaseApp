@@ -7,21 +7,31 @@
 
 import Foundation
 
-struct MovieResource {
+protocol MovieDataHandler {
+    func getMoviesWith<T: Decodable>(request: Request, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void)
     
-    let jsonUtility: JSONUtility
+    func getMovieCategories() -> [MovieCategory]
+    
+    func getMovieCategoryDetails<T: Decodable>(type: MovieCategoryType, from movies: [Movie]?, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void)
+    
+    func searchMovie(text: String, movies: [Movie]?, completionHandler: @escaping(_ result: Result<[Movie]?, CommonError>) -> Void)
+}
+
+struct MovieResource: MovieDataHandler {
+    
+    let dataHandler: DataHandler
     let responseHandler: ResponseHandler
     
-    init(jsonUtility: JSONUtility, responseHandler: ResponseHandler) {
-        self.jsonUtility = jsonUtility
+    init(dataHandler: DataHandler, responseHandler: ResponseHandler) {
+        self.dataHandler = dataHandler
         self.responseHandler = responseHandler
     }
     
-    func getMoviesWith<T: Decodable>(request: JSONRequest, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
-        self.jsonUtility.requestData(from: request) { result in
+    func getMoviesWith<T: Decodable>(request: Request, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
+        self.dataHandler.requestData(from: request) { result in
             switch result {
             case .success(let data):
-                self.responseHandler.decodeJsonResponse(data: data, responseType: responseType) { result in
+                self.responseHandler.decodeResponse(data: data, responseType: responseType) { result in
                     switch result {
                     case .success(let response):
                         completionHandler(.success(response))
@@ -45,29 +55,29 @@ struct MovieResource {
         return [yearData, genreData, directorsData, actorsData, allMoviesData]
     }
     
-    func getMovieCategoryDetails<T: Decodable>(type: MovieCategoryType, from movies: [Movie], responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
+    func getMovieCategoryDetails<T: Decodable>(type: MovieCategoryType, from movies: [Movie]? = nil, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
         switch type {
         case .year:
-            let yearValues = Set(movies.compactMap{ $0.year }).map { year in
-                MovieCategoryDetail(title: year, movies: movies.filter{ $0.year == year })
+            let yearValues = Set(movies?.compactMap{ $0.year } ?? []).map { year in
+                MovieCategoryDetail(title: year, movies: movies?.filter{ $0.year == year })
             } as? T
             completionHandler(.success(yearValues))
             
         case .genre:
-            let genreValues = Set(movies.compactMap{ $0.genre }.flatMap{ $0 }).map { genre in
-                MovieCategoryDetail(title: genre, movies: movies.filter{ $0.genre?.contains(genre) ?? false })
+            let genreValues = Set(movies?.compactMap{ $0.genre }.flatMap{ $0 } ?? []).map { genre in
+                MovieCategoryDetail(title: genre, movies: movies?.filter{ $0.genre?.contains(genre) ?? false })
             } as? T
             completionHandler(.success(genreValues))
             
         case .directors:
-            let directorValues = Set(movies.compactMap{ $0.director }.flatMap{ $0 }).map { director in
-                MovieCategoryDetail(title: director, movies: movies.filter{ $0.director?.contains(director) ?? false })
+            let directorValues = Set(movies?.compactMap{ $0.director }.flatMap{ $0 } ?? []).map { director in
+                MovieCategoryDetail(title: director, movies: movies?.filter{ $0.director?.contains(director) ?? false })
             } as? T
             completionHandler(.success(directorValues))
             
         case .actors:
-            let actorValues = Set(movies.compactMap{ $0.actors }.flatMap{ $0 }).map { title in
-                MovieCategoryDetail(title: title, movies: movies.filter{ $0.actors?.contains(title) ?? false })
+            let actorValues = Set(movies?.compactMap{ $0.actors }.flatMap{ $0 } ?? []).map { title in
+                MovieCategoryDetail(title: title, movies: movies?.filter{ $0.actors?.contains(title) ?? false })
             } as? T
             completionHandler(.success(actorValues))
             
@@ -77,11 +87,11 @@ struct MovieResource {
         }
     }
     
-    func searchMovie(text: String, movies: [Movie], completionHandler: @escaping(_ result: Result<[Movie]?, CommonError>) -> Void) {
+    func searchMovie(text: String, movies: [Movie]? = nil, completionHandler: @escaping(_ result: Result<[Movie]?, CommonError>) -> Void) {
         if text.isEmpty {
             completionHandler(.success(nil))
         } else {
-            let searchedMovies = movies.filter({ ($0.title?.localizedCaseInsensitiveContains(text) ?? false) || ($0.genre?.joined().localizedCaseInsensitiveContains(text) ?? false) || ($0.actors?.joined().localizedCaseInsensitiveContains(text) ?? false) || ($0.director?.joined().localizedCaseInsensitiveContains(text) ?? false) })
+            let searchedMovies = movies?.filter({ ($0.title?.localizedCaseInsensitiveContains(text) ?? false) || ($0.genre?.joined().localizedCaseInsensitiveContains(text) ?? false) || ($0.actors?.joined().localizedCaseInsensitiveContains(text) ?? false) || ($0.director?.joined().localizedCaseInsensitiveContains(text) ?? false) })
             completionHandler(.success(searchedMovies))
         }
     }

@@ -1,13 +1,18 @@
 //
-//  JSONRequest.swift
+//  FileRequest.swift
 //  MovieDatabaseApp
 //
-//  Created by AdminFS on 27/06/23.
+//  Created by AdminFS on 28/06/23.
 //
 
 import Foundation
 
-struct JSONRequest {
+protocol Request {
+    var url: URL? { get set }
+}
+
+struct FileRequest: Request {
+    var url: URL?
     let fileName: String
     let fileType: String
 
