@@ -26,7 +26,7 @@ class MovieCategoriesVC: UIViewController {
         super.viewDidLoad()
         
         if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-            movieResource = MovieResource(container: appDelegate.container)
+            movieResource = appDelegate.container.resolve(type: MovieResourceProtocol.self) as? MovieResource
             let fileRequest = FileRequest(withFileName: ProjectImp.fileName, and: ProjectImp.fileType)
             initializeData(from: movieResource, request: fileRequest)
         }

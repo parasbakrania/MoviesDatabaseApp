@@ -11,17 +11,21 @@ protocol ResponseHandlerProtocol {
     func decodeResponse<T: Decodable>(data: Data, responseType: T.Type, completionHandler: @escaping (Result<T?, ParseError>) -> Void)
 }
 
-struct ResponseDecoder: ResponseHandlerProtocol {
+class ResponseDecoder: ResponseHandlerProtocol, Configurable {
     
-    var decoder: JSONDecoder
+    struct ResponseDecoderConfiguration {
+        var decoder: JSONDecoder
+    }
     
-    init(decoder: JSONDecoder) {
-        self.decoder = decoder
+    var decoder: JSONDecoder?
+    
+    func configure(configuration: ResponseDecoderConfiguration) {
+        self.decoder = configuration.decoder
     }
     
     func decodeResponse<T: Decodable>(data: Data, responseType: T.Type, completionHandler: @escaping (Result<T?, ParseError>) -> Void) {
         do {
-            let response = try decoder.decode(responseType, from: data)
+            let response = try decoder?.decode(responseType, from: data)
             completionHandler(.success(response))
         } catch let error {
             debugPrint("error while decoding JSON response =>\(error.localizedDescription)")

@@ -22,9 +22,9 @@ struct MovieResource: MovieResourceProtocol {
     private let dataUtility: DataUtilityProtocol
     private let responseHandler: ResponseHandlerProtocol
     
-    init(container: DICProtocol) {
-        self.dataUtility = container.resolve(type: DataUtilityProtocol.self) ?? FileUtility()
-        self.responseHandler = container.resolve(type: ResponseHandlerProtocol.self) ?? ResponseDecoder(decoder: JSONDecoder())
+    init(dataUtility: DataUtilityProtocol, responseHandler: ResponseHandlerProtocol) {
+        self.dataUtility = dataUtility
+        self.responseHandler = responseHandler
     }
     
     func getMoviesWith<T: Decodable>(request: Request, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {

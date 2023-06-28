@@ -16,11 +16,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         container.register(type: DataUtilityProtocol.self) { _ in
             return FileUtility()
         }
-        container.register(type: ResponseHandlerProtocol.self) { _ in
-            return ResponseDecoder(decoder: JSONDecoder())
+        container.register(type: ResponseDecoder.self) { _ in
+            return ResponseDecoder()
         }
         container.register(type: MovieResourceProtocol.self) { dic in
-            return MovieResource(container: dic)
+            let configuration = ResponseDecoder.ResponseDecoderConfiguration(decoder: JSONDecoder())
+            let fileUtility = dic.resolve(type: DataUtilityProtocol.self) ?? FileUtility()
+            let responseDecoder = dic.resolve(type: ResponseDecoder.self, configuration: configuration) ?? ResponseDecoder()
+            return MovieResource(dataUtility: fileUtility, responseHandler: responseDecoder)
         }
         return container
     }()
