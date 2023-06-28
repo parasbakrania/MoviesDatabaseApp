@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol MovieDataHandler {
+protocol MovieResourceProtocol {
     func getMoviesWith<T: Decodable>(request: Request, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void)
     
     func getMovieCategories() -> [MovieCategory]
@@ -17,18 +17,18 @@ protocol MovieDataHandler {
     func searchMovie(text: String, movies: [Movie]?, completionHandler: @escaping(_ result: Result<[Movie]?, CommonError>) -> Void)
 }
 
-struct MovieResource: MovieDataHandler {
+struct MovieResource: MovieResourceProtocol {
     
-    let dataHandler: DataHandler
-    let responseHandler: ResponseHandler
+    private let dataUtility: DataUtilityProtocol
+    private let responseHandler: ResponseHandlerProtocol
     
-    init(dataHandler: DataHandler, responseHandler: ResponseHandler) {
-        self.dataHandler = dataHandler
-        self.responseHandler = responseHandler
+    init(container: DICProtocol) {
+        self.dataUtility = container.resolve(type: DataUtilityProtocol.self) ?? FileUtility()
+        self.responseHandler = container.resolve(type: ResponseHandlerProtocol.self) ?? ResponseDecoder(decoder: JSONDecoder())
     }
     
     func getMoviesWith<T: Decodable>(request: Request, responseType: T.Type, completionHandler: @escaping(_ result: Result<T?, CommonError>) -> Void) {
-        self.dataHandler.requestData(from: request) { result in
+        self.dataUtility.requestData(from: request) { result in
             switch result {
             case .success(let data):
                 self.responseHandler.decodeResponse(data: data, responseType: responseType) { result in

@@ -7,11 +7,11 @@
 
 import Foundation
 
-protocol ResponseHandler {
+protocol ResponseHandlerProtocol {
     func decodeResponse<T: Decodable>(data: Data, responseType: T.Type, completionHandler: @escaping (Result<T?, ParseError>) -> Void)
 }
 
-struct ReponseDecoder: ResponseHandler {
+struct ResponseDecoder: ResponseHandlerProtocol {
     
     var decoder: JSONDecoder
     

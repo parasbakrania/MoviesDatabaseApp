@@ -10,7 +10,20 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    ///Dependency injection container object
+    let container: DIC = {
+        let container = DIC()
+        container.register(type: DataUtilityProtocol.self) { _ in
+            return FileUtility()
+        }
+        container.register(type: ResponseHandlerProtocol.self) { _ in
+            return ResponseDecoder(decoder: JSONDecoder())
+        }
+        container.register(type: MovieResourceProtocol.self) { dic in
+            return MovieResource(container: dic)
+        }
+        return container
+    }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.

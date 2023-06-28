@@ -25,20 +25,19 @@ class MovieCategoriesVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let fileUtility = FileUtility()
-        let decoder = JSONDecoder()
-        let responseDecoder = ReponseDecoder(decoder: decoder)
-        movieResource = MovieResource(dataHandler: fileUtility, responseHandler: responseDecoder)
-        let fileRequest = FileRequest(withFileName: ProjectImp.fileName, and: ProjectImp.fileType)
-        initializeData(from: movieResource, request: fileRequest)
+        if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+            movieResource = MovieResource(container: appDelegate.container)
+            let fileRequest = FileRequest(withFileName: ProjectImp.fileName, and: ProjectImp.fileType)
+            initializeData(from: movieResource, request: fileRequest)
+        }
     }
     
-    private func initializeData(from movieDataHandler: MovieDataHandler?, request: FileRequest) {
-        movieDataHandler?.getMoviesWith(request: request, responseType: [Movie].self) { [weak self] result in
+    private func initializeData(from movieResProtocol: MovieResourceProtocol?, request: Request) {
+        movieResProtocol?.getMoviesWith(request: request, responseType: [Movie].self) { [weak self] result in
             switch result {
             case .success(let movies):
                 self?.movies = movies ?? []
-                self?.movieCategories = movieDataHandler?.getMovieCategories() ?? []
+                self?.movieCategories = movieResProtocol?.getMovieCategories() ?? []
                 DispatchQueue.main.async {
                     self?.tblVWMovieCategories.reloadData()
                 }
@@ -123,10 +122,10 @@ extension MovieCategoriesVC: UITableViewDelegate {
         }
     }
     
-    private func handleNavigation(for movieCategory: MovieCategory, using movieDataHandler: MovieDataHandler?) {
+    private func handleNavigation(for movieCategory: MovieCategory, using movieResProtocol: MovieResourceProtocol?) {
         switch movieCategory.type {
         case .allMovies:
-            movieDataHandler?.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: self.movies, responseType: [Movie].self, completionHandler: { [weak self] result in
+            movieResProtocol?.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: self.movies, responseType: [Movie].self, completionHandler: { [weak self] result in
                 switch result {
                 case .success(let movies):
                     DispatchQueue.main.async {
@@ -141,7 +140,7 @@ extension MovieCategoriesVC: UITableViewDelegate {
             })
             
         default:
-            movieDataHandler?.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: self.movies, responseType: [MovieCategoryDetail].self, completionHandler: { [weak self] result in
+            movieResProtocol?.getMovieCategoryDetails(type: movieCategory.type ?? .year, from: self.movies, responseType: [MovieCategoryDetail].self, completionHandler: { [weak self] result in
                 switch result {
                 case .success(let moviesCategoryDetails):
                     DispatchQueue.main.async {
@@ -175,9 +174,9 @@ extension MovieCategoriesVC: UISearchBarDelegate {
         searchBar.searchTextField.resignFirstResponder()
     }
     
-    private func searchMovieWith(text: String, from movieDataHandler: MovieDataHandler?) {
+    private func searchMovieWith(text: String, from movieResProtocol: MovieResourceProtocol?) {
         self.searchText = text
-        movieDataHandler?.searchMovie(text: text, movies: self.movies) { [weak self] result in
+        movieResProtocol?.searchMovie(text: text, movies: self.movies) { [weak self] result in
             switch result {
             case .success(let movies):
                 self?.searchedMovies = movies ?? []

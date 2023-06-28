@@ -7,11 +7,12 @@
 
 import Foundation
 
-protocol DataHandler {
+protocol DataUtilityProtocol {
     func requestData(from request: Request, completionHandler: @escaping (Result<Data, CommonError>) -> Void)
 }
 
-struct FileUtility: DataHandler {
+struct FileUtility: DataUtilityProtocol {
+    
     func requestData(from request: Request, completionHandler: @escaping (Result<Data, CommonError>) -> Void) {
         guard let request = request as? FileRequest else {
             completionHandler(.failure(CommonError(errorMessage: CommonString.noDataFound)))
